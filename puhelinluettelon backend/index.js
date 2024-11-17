@@ -53,6 +53,16 @@ app.get('/api/persons/:id', (req, res) => {
     }
 })
 
+app.post("/api/persons/", (req, res) => {
+    const person = req.body
+    const maxId =
+      persons.length > 0 ? Math.max(...persons.map((p) => parseInt(p.id))) : 0;
+    person.id = String(maxId + 1)
+
+    persons = persons.concat(person)
+    res.status(201).json(person)
+})
+
 app.delete("/api/persons/:id", (req, res) => {
     const id = req.params.id;
     persons = persons.filter(person => person.id !== id)
