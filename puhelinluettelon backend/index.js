@@ -1,3 +1,4 @@
+
 const express = require('express')
 const app = express()
 
@@ -30,21 +31,30 @@ app.get('/', (req, res) => {
     res.send('placeholder')
 })
 
-app.get('/api/persons', (req, res) => {
-    /*kovakoodatun taulukon numerotiedot (step1)*/
+app.get('/api/persons/', (req, res) => {
     res.json(persons)
 })
 
 app.get('/info', (req, res) => {
-    /*Pyynnön tekohetki ja montako puhelinluettelotietoa (step2)*/
     const date = new Date()
-
     res.send(`
         <p>Phonebook has info for ${persons.length} people</p>
         <p>${date}</p>
     `)
 })
 
+app.get('/api/persons/:id', (req, res) => {
+    const id = req.params.id
+    const person = persons.find((person) => person.id === id)
+    
+    if (person) {
+        res.json(person)
+    } else {
+        res.status(404).end()
+    }
+})
+
 const PORT = 3001
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)})
+    console.log(`Server running on port ${PORT}`)
+})
