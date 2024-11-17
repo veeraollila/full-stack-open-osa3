@@ -3,7 +3,7 @@ const app = express()
 
 app.use(express.json())
 
-let notes = [
+let persons = [
     {
         id: 1,
         name: 'Arto Hellas',
@@ -27,10 +27,22 @@ let notes = [
 ]
 
 app.get('/', (req, res) => {
-    res.send('<h1>Hello World!</h1>')
+    res.send('placeholder')
 })
+
 app.get('/api/persons', (req, res) => {
-    res.json(notes)
+    /*kovakoodatun taulukon numerotiedot (step1)*/
+    res.json(persons)
+})
+
+app.get('/info', (req, res) => {
+    /*Pyynnön tekohetki ja montako puhelinluettelotietoa (step2)*/
+    const date = new Date()
+
+    res.send(`
+        <p>Phonebook has info for ${persons.length} people</p>
+        <p>${date}</p>
+    `)
 })
 
 const PORT = 3001
