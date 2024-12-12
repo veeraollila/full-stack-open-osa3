@@ -9,13 +9,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:ui": "rm -rf dist && cd ../full-stack-open/osa2/puhelinluettelo && npm run build && cp -r dist ../full-stack-open-osa3",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push"
-  
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.1",
+    "mongodb": "^6.12.0",
+    "mongoose": "^8.8.4",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
