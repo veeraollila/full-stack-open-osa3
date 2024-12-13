@@ -5,14 +5,17 @@ const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
 const Person = require('./models/person')
+const path = require('path')
+
+morgan.token('body', function (req, res) { return JSON.stringify(req.body) })
 
 app.use(cors())
 app.use(express.json())
 app.use(express.static('dist'))
 app.use(morgan('tiny'))
 
-app.get('/', (req, res) => {
-    res.send('<h1>Hello World!</h1>')
+app.get('/api/persons', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'))
 })
 
 app.get('/api/persons', (req, res) => {
@@ -21,32 +24,42 @@ app.get('/api/persons', (req, res) => {
     })
 })
 
-app.get('/info', (req, res) => {
-    const date = new Date()
-    res.send(`
-        <p>Phonebook has info for ${persons.length} people</p>
-        <p>${date}</p>
-    `)
+app.get('/info', async (req, res, next) => {
+    try {
+        const persons = await Person.find({})
+        res.send(`<p>Phonebook has info for ${persons.length} people</p> <p>${new Date()}</p>`)
+    } catch (error) {
+        next(error)
+    }
 })
 
-app.get('/api/persons/:id', (req, res) => {
-    Person.findById(req.params.id).then(person => {
-        res.json(person)
-    })
+app.get('/api/persons/:id', async (req, res, next) => {
+    try {
+        const person = await Person.findById(req.params.id)
+        if (person) {
+            res.json(person)
+        } else {
+            res.status(404).end()
+        }
+    } catch (error) {
+        next(error)
+    }
 })
+
+app.use(express.static('dist'))
 
 app.delete('/api/persons/:id', async (req, res, next) => {
     try {
-      const id = req.params.id
-      const result = await Person.deleteOne({ _id: id })
-      if (result.deletedCount > 0) {
-        console.log(`deleted person with id ${id} from phonebook`)
-        res.status(204).end()
-      } else {
-        res.status(404).send({ error: 'person not found' })
-      }
+        const id = req.params.id
+        const result = await Person.deleteOne({ _id: id })
+        if (result.deletedCount > 0) {
+            console.log(`deleted person with id ${id} from phonebook`)
+            res.status(204).end()
+        } else {
+            res.status(404).send({ error: 'person not found' })
+        }
     } catch (error) {
-      next(error)
+        next(error)
     }
 })
 
@@ -57,27 +70,21 @@ app.post("/api/persons/", async (req, res, next) => {
         return res.status(400).json({
             error: 'name must be at least 3 characters long' 
         })
-      }
+    }
     
     if (!body.number) {
         return res.status(400).json({ 
-          error: 'number missing' 
+            error: 'number missing' 
         })
     }
-
-    const nameExists = persons.some((p) => p.name === body.name)
-    if (nameExists) {
-        return res.status(400).json({
-          error: "name must be unique",
-        })
-    }
-
+    
     try {
         const updatedPerson = await Person.findOneAndUpdate(
-          { name: body.name },
-          { number: body.number },
-          { new: true, upsert: true }
+            { name: body.name },
+            { number: body.number },
+            { new: true, upsert: true }
         )
+        
         console.log(`added or updated ${body.name} number ${body.number} in phonebook`)
         res.json(updatedPerson)
     } catch (error) {
@@ -85,7 +92,58 @@ app.post("/api/persons/", async (req, res, next) => {
     }
 })
 
+app.put('/api/persons/:id', async (req, res, next) => {
+    const id = req.params.id
+    const body = req.body
+    
+    if (!body.name || body.name.length < 3) {
+        return res.status(400).json({
+            error: 'name must be at least 3 characters long' 
+        })
+    }
+    
+    if (!body.number) {
+        return res.status(400).json({
+            error: 'number missing' 
+        })
+    }
+    
+    try {
+        const updatedPerson = await Person.findByIdAndUpdate(
+            id,
+            { name: body.name, number: body.number },
+            { new: true }
+        )
+        
+        if (!updatedPerson) {
+            return res.status(404).json({ 
+                error: 'person not found' 
+            })
+        }
+        
+        console.log(`updated ${body.name} number ${body.number} in phonebook`)
+        res.json(updatedPerson)
+    } catch (error) {
+        next(error)
+    }
+})
+
+app.use((error, req, res, next) => {
+    console.error(error.message)
+    
+    if (error.name === 'CastError') {
+        return res.status(400).send({ error: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+        return res.status(400).json({ error: error.message })
+    }
+    
+    next(error)
+})
+
+const unknownEndpoint = (req, res) => {res.status(404).send({ error: 'unknown endpoint' })}
+app.use(unknownEndpoint)
+
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+    console.log(`Server running on port ${PORT}`)
 })
