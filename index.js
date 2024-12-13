@@ -53,9 +53,15 @@ app.delete('/api/persons/:id', async (req, res, next) => {
 app.post("/api/persons/", async (req, res, next) => {
     const body = req.body
     
-    if (!body.name || !body.number) {
+    if (!body.name || body.name.length < 3) {
         return res.status(400).json({
-          error: "content missing",
+            error: 'name must be at least 3 characters long' 
+        })
+      }
+    
+    if (!body.number) {
+        return res.status(400).json({ 
+          error: 'number missing' 
         })
     }
 
