@@ -17,10 +17,6 @@ export default [
       '@stylistic/js': stylisticJs
     },
     rules: {
-      '@stylistic/js/indent': [
-        'error',
-        2
-      ],
       '@stylistic/js/linebreak-style': [
         'error',
         'unix'
@@ -32,11 +28,6 @@ export default [
       '@stylistic/js/semi': [
         'error',
         'never'
-      ],
-      'eqeqeq': 'error',
-      'no-trailing-spaces': 'error',
-      'object-curly-spacing': [
-        'error', 'always'
       ],
       'arrow-spacing': [
         'error', { 'before': true, 'after': true },
