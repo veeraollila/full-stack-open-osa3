@@ -23,36 +23,36 @@ const personSchema = new mongoose.Schema({
 const Person = mongoose.model('Person', personSchema)
 
 if (action === 'get') {
-    console.log('phonebook:')
-    Person.find({}).then(result => {
-      result.forEach(person => {
-        console.log(`${person.name} ${person.number}`)
-      })
-      mongoose.connection.close()
+  console.log('phonebook:')
+  Person.find({}).then(result => {
+    result.forEach(person => {
+      console.log(`${person.name} ${person.number}`)
     })
+    mongoose.connection.close()
+  })
 } else if (action === 'add') {
-    const name = process.argv[4]
-    const number = process.argv[5]
+  const name = process.argv[4]
+  const number = process.argv[5]
 
-    const person = new Person({
-      name: name,
-      number: number, 
-    })
+  const person = new Person({
+    name: name,
+    number: number,
+  })
 
-    person.save().then(result => {
-      console.log(`added ${name} number ${number} to phonebook`)
-      mongoose.connection.close()
-    }) 
+  person.save().then(result => {
+    console.log(`added ${name} number ${number} to phonebook`)
+    mongoose.connection.close()
+  })
 } else if (action === 'delete') {
-    Person.deleteOne({ name: name }).then(result => {
-      console.log(`deleted ${name} from phonebook`)
-      mongoose.connection.close()
-    })
+  Person.deleteOne({ name: name }).then(result => {
+    console.log(`deleted ${name} from phonebook`)
+    mongoose.connection.close()
+  })
 } else if (action === 'edit') {
-    Person.findOneAndUpdate({ name: name }, { number: number }, { new: true }).then(result => {
-      console.log(`changed ${name}'s number to ${number}`)
-      mongoose.connection.close()
-    })
+  Person.findOneAndUpdate({ name: name }, { number: number }, { new: true }).then(result => {
+    console.log(`changed ${name}'s number to ${number}`)
+    mongoose.connection.close()
+  })
 }
 
 module.exports = Person
