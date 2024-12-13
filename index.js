@@ -6,7 +6,6 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const Person = require('./models/person')
 
-
 app.use(cors())
 app.use(express.json())
 app.use(express.static('dist'))
